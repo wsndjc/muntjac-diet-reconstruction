@@ -21,13 +21,14 @@ suppressPackageStartupMessages({ library(vegan); library(dplyr) })
 set.seed(1)
 
 BASE <- Sys.getenv("MUNTJAC_DATA", unset = ".")  # 指向 Zenodo 数据包根目录
-RES  <- file.path(BASE, "03_diet_composition", "rarefied_counts")   # RRA + rarefied counts
+RES  <- file.path(BASE, "03_diet_composition", "rarefied_counts")   # 输入：RRA + rarefied counts
 DIET <- file.path(BASE, "03_diet_composition")
-dir.create(RES, showWarnings = FALSE, recursive = TRUE)
+OUT  <- "results"                        # 输出目录（写在代码包内，不污染数据包）
+dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 
 rd <- function(p) tryCatch(read.csv(p, fileEncoding="UTF-8-BOM", check.names=FALSE, stringsAsFactors=FALSE),
                            error=function(e) read.csv(p, check.names=FALSE, stringsAsFactors=FALSE))
-wr <- function(df, name) write.csv(df, file.path(RES, name), row.names=FALSE)
+wr <- function(df, name) write.csv(df, file.path(OUT, name), row.names=FALSE)
 
 SP <- c("M. reevesi","M. crinifrons")
 
@@ -140,7 +141,7 @@ for (thr in c("95","90")) {
 
   # -- Alpha on rarefied raw reads (Methods 2.8; see alpha_diversity note) ----
   alpha <- alpha_diversity(thr)
-  wr(alpha, sprintf("Alpha_%s.csv", thr))
+  wr(alpha, sprintf("Alpha_%s.csv", key))
   aR <- alpha[alpha$Host=="M. reevesi",]; aB <- alpha[alpha$Host=="M. crinifrons",]
   cat(sprintf("  Alpha(rarefied raw reads): Reeves richness %.2f Shannon %.3f Pielou %.3f | black richness %.2f Shannon %.3f Pielou %.3f\n",
               mean(aR$Richness), mean(aR$Shannon, na.rm=TRUE), mean(aR$Pielou, na.rm=TRUE),
