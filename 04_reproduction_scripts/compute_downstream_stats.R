@@ -20,8 +20,9 @@
 suppressPackageStartupMessages({ library(vegan); library(dplyr) })
 set.seed(1)
 
-BASE <- file.path("..", "02_Zenodo_data")
-RES  <- file.path(BASE, "结果_下游指标")
+BASE <- Sys.getenv("MUNTJAC_DATA", unset = ".")  # 指向 Zenodo 数据包根目录
+RES  <- file.path(BASE, "03_diet_composition", "rarefied_counts")   # RRA + rarefied counts
+DIET <- file.path(BASE, "03_diet_composition")
 dir.create(RES, showWarnings = FALSE, recursive = TRUE)
 
 rd <- function(p) tryCatch(read.csv(p, fileEncoding="UTF-8-BOM", check.names=FALSE, stringsAsFactors=FALSE),
@@ -44,7 +45,7 @@ load_rra <- function(thr) {
 # Counts_rarefied_*), NOT to the minimum plant depth (which is ~5 reads and degenerate).
 # Rarefied plant-family counts -> richness/Shannon/Pielou here.
 alpha_diversity <- function(thr) {
-  d <- rd(file.path(RES, sprintf("Counts_rarefied_%s.csv", thr)))
+  d <- rd(file.path(RES, sprintf("Counts_rarefied_ASM%s.csv", thr)))
   m <- as.matrix(d[, -(1:2)]); rownames(m) <- d$SampleID
   host <- d$Host
   S <- rowSums(m > 0)                            # family richness (rarefied)
@@ -130,12 +131,12 @@ bipartite <- function(fr, fb) {
 }
 
 # =============================================================================
-for (thr in c("ASM95","ASM90")) {
-  key <- thr
-  D <- load_rra(sub("ASM","",thr))
+for (thr in c("95","90")) {
+  key <- paste0("ASM", thr)
+  D <- load_rra(thr)
   m <- D$m; host <- D$host
-  fr <- rd(file.path(RES, sprintf("Diet_%s_Reeves.csv", thr)))
-  fb <- rd(file.path(RES, sprintf("Diet_%s_black.csv",  thr)))
+  fr <- rd(file.path(DIET, sprintf("Diet_ASM%s_Reeves.csv", thr)))
+  fb <- rd(file.path(DIET, sprintf("Diet_ASM%s_black.csv", thr)))
 
   # -- Alpha on rarefied raw reads (Methods 2.8; see alpha_diversity note) ----
   alpha <- alpha_diversity(thr)

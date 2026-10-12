@@ -11,7 +11,7 @@
 if (!requireNamespace("vegan", quietly = TRUE)) install.packages("vegan")
 library(vegan)
 
-setwd(file.path("..", "02_Zenodo_data", "02_abundance_matrices"))
+setwd(file.path(Sys.getenv("MUNTJAC_DATA", unset="."), "02_abundance_matrices"))
 HOST_R <- "M. reevesi"    # 小麂
 HOST_B <- "M. crinifrons" # 黑麂
 

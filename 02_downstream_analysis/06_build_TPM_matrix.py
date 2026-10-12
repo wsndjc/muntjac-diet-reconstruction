@@ -7,12 +7,13 @@ import io, os, re, sys, glob, pickle
 sys.stdout.reconfigure(encoding="utf-8")
 import pandas as pd, numpy as np
 
-BL = os.path.join("..", "02_Zenodo_data", "01_plant_reference_database")  # blast annotation + TPM dir
-DICT = os.path.join("..", "02_Zenodo_data", "06_species_family_dictionary", "species_family_dictionary.csv")
-CACHE = os.path.join("..", "_cache", "tpm_cache.pkl")
+DATA = os.environ.get("MUNTJAC_DATA", ".")
+BL = os.path.join(DATA, "01_plant_reference_database")  # blast annotation + TPM dir
+DICT = os.path.join(DATA, "06_species_family_dictionary", "species_family_dictionary.csv")
+CACHE = os.path.join(DATA, "_cache", "tpm_cache.pkl")
 
 HOST = {}
-for l in io.open(os.path.join("..", "02_Zenodo_data", "05_sample_metadata", "sample_species_map.txt"), encoding="utf-8"):
+for l in io.open(os.path.join(DATA, "05_sample_metadata", "sample_species_map.txt"), encoding="utf-8"):
     p = l.split()
     if len(p) >= 2:
         HOST[p[0]] = "black" if p[1] == "黑麂" else "reevesi"

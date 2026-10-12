@@ -33,7 +33,7 @@ set.seed(1)
 
 # Paths are relative to the archived data package (Zenodo).
 # Set DATA_DIR to the directory containing the downloaded data package.
-DATA_DIR <- "."
+DATA_DIR <- Sys.getenv("MUNTJAC_DATA", unset = ".")  # 指向 Zenodo 数据包根目录
 RES_DIR  <- file.path(DATA_DIR, "03_diet_composition")
 SUP_DIR  <- file.path(DATA_DIR, "04_statistics")
 ABU_DIR  <- file.path(DATA_DIR, "02_abundance_matrices")
