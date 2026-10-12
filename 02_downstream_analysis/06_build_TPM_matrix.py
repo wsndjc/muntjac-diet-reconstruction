@@ -8,7 +8,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 import pandas as pd, numpy as np
 
 DATA = os.environ.get("MUNTJAC_DATA", ".")
-BL = os.path.join(DATA, "01_plant_reference_database")  # blast annotation + TPM dir
+# 中间产物（per-sample blast_annotation.csv + tpm_abundance.csv，约 1.6 GB）
+# 不随数据包分发；如需要可向作者索取，或由 02_ASM_assembly_blast_tpm.sbatch 重新生成。
+BL = os.environ.get("MUNTJAC_INTERMEDIATE", os.path.join(DATA, "intermediate"))
 DICT = os.path.join(DATA, "06_species_family_dictionary", "species_family_dictionary.csv")
 CACHE = os.path.join(DATA, "_cache", "tpm_cache.pkl")
 
