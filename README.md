@@ -126,6 +126,28 @@ host-depleted reads to plant families. See `01_upstream_pipeline/`.
 
 ---
 
+## Data location (required)
+
+The code in this repository and the **data package** are two separate archives
+(hosted independently on Zenodo / GitHub). Before running any downstream script,
+set the `MUNTJAC_DATA` environment variable to the root of the downloaded data
+package (the directory containing `01_plant_reference_database/`,
+`02_abundance_matrices/`, `03_diet_composition/`, `04_statistics/`,
+`05_sample_metadata/`, `06_species_family_dictionary/`).
+
+```bash
+# Linux / macOS
+export MUNTJAC_DATA=/path/to/downloaded_data_package
+
+# Windows (PowerShell)
+$env:MUNTJAC_DATA = "D:/path/to/data_package"
+```
+
+All downstream R and Python scripts read inputs from `$MUNTJAC_DATA` and write
+outputs to a local `results/` directory inside this repository.
+
+---
+
 ## Running the pipeline
 
 ### Requirements
