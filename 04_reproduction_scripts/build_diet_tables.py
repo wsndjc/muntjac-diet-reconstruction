@@ -134,32 +134,31 @@ if __name__ == '__main__':
 
     results = {}
     for thr in (95, 90):
-        for d73 in ('',):
-                                    def rra(samples):
-                out = {}
-                for s in samples:
-                    ft = fam_tpm[s][thr]
-                    tot = sum(ft.values())
-                    out[s] = {f: v / tot * 100.0 for f, v in ft.items()} if tot > 0 else {}
-                return out
-            rra_r = rra(sr); rra_b = rra(sb)
-            tr, rr, nr = build_table(sr, thr, rra_r)
-            tb, rb, nb = build_table(sb, thr, rra_b)
-            results[(thr, d73)] = {'Reeves': (tr, nr, rr), 'black': (tb, nb, rb)}
-            print(f"\n===== ASM{thr} {d73} : Reeves {nr}/{len(sr)} retained, black {nb}/{len(sb)} retained =====")
-            print("--- Reeves top 12 ---")
-            for f, pres, foo, mrra in tr[:12]:
-                print(f"  {f:20s} FOO {foo:6.2f}% ({pres}/{nr}) mRRA {mrra:6.2f}%")
-            print("--- black top 12 ---")
-            for f, pres, foo, mrra in tb[:12]:
-                print(f"  {f:20s} FOO {foo:6.2f}% ({pres}/{nb}) mRRA {mrra:6.2f}%")
+        def rra(samples):
+            out = {}
+            for s in samples:
+                ft = fam_tpm[s][thr]
+                tot = sum(ft.values())
+                out[s] = {f: v / tot * 100.0 for f, v in ft.items()} if tot > 0 else {}
+            return out
+        rra_r = rra(REEVES); rra_b = rra(BLACK)
+        tr, rr, nr = build_table(REEVES, thr, rra_r)
+        tb, rb, nb = build_table(BLACK, thr, rra_b)
+        results[thr] = {'Reeves': (tr, nr, rr), 'black': (tb, nb, rb)}
+        print(f"\n===== ASM{thr}: Reeves {nr}/{len(REEVES)} retained, black {nb}/{len(BLACK)} retained =====")
+        print("--- Reeves top 12 ---")
+        for f, pres, foo, mrra in tr[:12]:
+            print(f"  {f:20s} FOO {foo:6.2f}% ({pres}/{nr}) mRRA {mrra:6.2f}%")
+        print("--- black top 12 ---")
+        for f, pres, foo, mrra in tb[:12]:
+            print(f"  {f:20s} FOO {foo:6.2f}% ({pres}/{nb}) mRRA {mrra:6.2f}%")
 
     # write Diet_*.csv in the format expected by the R script
-    def write_csv(thr, d73):
+    def write_csv(thr):
         tok = ''
         for sp, tag in (('Reeves', 'Reeves'), ('black', 'black')):
-            tr, nr, rr = results[(thr, d73)][sp]
-            path = os.path.join(OUT, f"Diet_ASM{thr}_{tok}_{tag}.csv")
+            tr, nr, rr = results[thr][sp]
+            path = os.path.join(OUT, f"Diet_ASM{thr}_{tag}.csv")
             with open(path, 'w', newline='', encoding='utf-8-sig') as fh:
                 w = csv.writer(fh)
                 w.writerow(['Family', 'mRRA_pct', 'FOO_pct', 'Occurrence', 'S_valid'])
@@ -167,6 +166,5 @@ if __name__ == '__main__':
                     w.writerow([f, round(mrra, 6), round(foo, 6), pres, nr])
             print("wrote", path)
     for thr in (95, 90):
-        for d73 in ('',):
-            write_csv(thr, d73)
+        write_csv(thr)
     print("DONE")

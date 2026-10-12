@@ -137,7 +137,7 @@ build_fig2 <- function() {
   names(raw) <- c("No","SampleID","Species","Site","RawReads","RawGb","Q20","Q30","HostReads","HostRate")
   qc <- raw |> filter(!is.na(suppressWarnings(as.numeric(No)))) |>
     mutate(across(c(No,RawReads,RawGb,Q20,Q30,HostReads,HostRate), ~suppressWarnings(as.numeric(.))),
-           Host=as_sp(recode(Species, "Muntiacus reevesi"="M. reevesi","Muntiacus crinifrons"="M. crinifrons"))) |>
+           Host=as_sp(recode(Species, "Muntiacus reevesi"="M. reevesi","Muntiacus crinifrons"="M. crinifrons")))
   retained <- rd(file.path(RES_DIR, sprintf("Alpha_perSample_ASM95.csv")))$SampleID
   qc$Retained <- ifelse(qc$SampleID %in% retained, "analysed", "below detection")
   qc_ord <- qc |> arrange(desc(RawGb)) |> mutate(rank=row_number())

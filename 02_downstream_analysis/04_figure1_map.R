@@ -28,11 +28,9 @@ d <- suppressMessages(read_excel(f, skip=3, col_names=FALSE))
 names(d) <- c("plot","site","zone","lat","lon","elev","veg","dom","nE","Esamp","nD","Dsamp","ntot")
 d <- d |> filter(grepl("^JLSK", site)) |>
   mutate(across(c(lat,lon,elev,ntot), as.numeric),
-         
-         n = ntot - as.integer(has73),
+         n = ntot,
          zone2 = case_when(grepl("Original", zone) ~ "Original",
                            grepl("Expansion", zone) ~ "Expansion", TRUE ~ "Shared"))
-, sum(d$n), d$site[d$has73]))
 pts <- st_as_sf(d, coords=c("lon","lat"), crs=4326, remove=FALSE)
 
 # ---- reserve boundary (WGS84; 2 polygons = reserve areas) --------------------
