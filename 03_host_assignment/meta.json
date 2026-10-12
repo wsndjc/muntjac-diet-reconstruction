@@ -1,0 +1,13 @@
+{
+ "reevesi": {
+  "chrom": "NC_004069.1",
+  "length": 16354
+ },
+ "crinifrons": {
+  "chrom": "NC_004577.1",
+  "length": 16357
+ },
+ "n_sites": 947,
+ "n_transversion": 83,
+ "n_transition": 864
+}

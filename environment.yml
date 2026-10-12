@@ -1,0 +1,33 @@
+# Conda environment for the muntjac dietary-reconstruction pipeline
+# Create with:  conda env create -f environment.yml
+# Activate with: conda activate muntjac_diet
+#
+# Tool versions correspond to those reported in the manuscript (Methods 2.4-2.6).
+name: muntjac_diet
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # ---- read processing -------------------------------------------------
+  - fastp=0.23.4
+
+  # ---- host assignment -------------------------------------------------
+  - bwa=0.7.17
+  - samtools=1.19
+
+  # ---- direct read-based reconstruction (DIR) --------------------------
+  - bowtie2=2.4.5
+
+  # ---- assembly-based reconstruction (ASM) -----------------------------
+  - megahit=1.2.9
+  - blast=2.12.0
+
+  # ---- scripting -------------------------------------------------------
+  - python=3.11
+  - numpy>=1.24
+  - scipy>=1.10
+  - pandas>=2.0
+
+  # ---- optional: reference database construction -----------------------
+  - seqkit>=2.4

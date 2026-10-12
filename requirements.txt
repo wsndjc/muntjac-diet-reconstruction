@@ -1,0 +1,15 @@
+# Python dependencies for the muntjac dietary-reconstruction analysis.
+# Install with:  pip install -r requirements.txt
+#
+# Only the standard library plus these packages are required for the
+# downstream Python scripts in this repository.
+
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+
+# Optional: reading/writing Excel metadata (used for sample tables)
+openpyxl>=3.1
+
+# Optional: mitochondrial sequence retrieval and alignment (host assignment QA)
+biopython>=1.81

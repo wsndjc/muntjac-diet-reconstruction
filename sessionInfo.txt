@@ -1,0 +1,40 @@
+# R session information
+# Analysis code accompanying:
+#   Robustness of dietary reconstruction in sympatric muntjacs using fecal
+#   shotgun metagenomics and a curated plant reference database
+#
+# Records the R version and package versions used to produce the figures
+# and the downstream statistics (Methods 2.8).
+
+R version: R version 4.4.3 (2025-02-28 ucrt)
+platform : x86_64-w64-mingw32
+arch     : x86_64
+
+Packages used in this analysis:
+  ggplot2        4.0.3
+  patchwork      1.3.2
+  dplyr          1.2.1
+  tidyr          1.3.2
+  scales         1.4.0
+  forcats        1.0.1
+  ggrepel        0.9.8
+  vegan          2.7.3
+  svglite        2.2.2
+  ragg           1.5.2
+  circlize       NOT_INSTALLED
+  ggnewscale     NOT_INSTALLED
+  ggplotify      NOT_INSTALLED
+  ggspatial      NOT_INSTALLED
+  magick         NOT_INSTALLED
+  readxl         NOT_INSTALLED
+  sf             NOT_INSTALLED
+  terra          NOT_INSTALLED
+  tidyterra      NOT_INSTALLED
+  elevatr        NOT_INSTALLED
+  rnaturalearth  NOT_INSTALLED
+  tibble         3.3.1
+
+# NOTE
+#   The packages required for the study-area map (Fig. 1) -- sf, terra,
+#   elevatr, rnaturalearth, tidyterra -- were used in a separate GIS
+#   environment and are therefore not listed above.
