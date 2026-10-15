@@ -1,10 +1,11 @@
 # =============================================================================
 # ms-0602  FIGURE 1 — Study-area / sampling map  (Ecology and Evolution)
 #   Jiulongshan National Nature Reserve, Zhejiang, China.
+#   Red circles = sampling plots, size ∝ number of faecal samples (D73 EXCLUDED).
 #   Grayscale = elevation (SRTM via elevatr). Inset = study-area location in China.
 #   Photos: (A) black muntjac (M. crinifrons), (B) Reeves's muntjac (M. reevesi).
 #   Backend R. Vector PDF + SVG + 600 dpi TIFF (RGB).
-#   Run:  Rscript figure1_map.R
+#   Run: "E:/R/R-4.5.3/bin/Rscript.exe" figure1_map_EE.R
 # =============================================================================
 suppressPackageStartupMessages({
   library(readxl); library(dplyr); library(sf); library(terra); library(tidyterra)
@@ -16,21 +17,25 @@ suppressPackageStartupMessages({
 # device so text is measured with proper Arial metrics during plot building.
 ragg::agg_png(file.path(tempdir(), "fontdev.png"), width=1200, height=1200, res=150)
 
-BASE    <- "."        # set to your project root
+DATA_DIR <- Sys.getenv("MUNTJAC_DATA", unset=".")
+BASE    <- DATA_DIR
 OUT_DIR <- file.path(BASE, "SCI_figures_EE")
-PHOTO_A <- "photos/black_muntjac.png"   # black muntjac (camera trap)
-PHOTO_B <- "photos/reeves_muntjac.png"  # Reeves's muntjac (camera trap)
-SHP     <- "gis/reserve_boundary.shp"   # reserve boundary shapefile
+PHOTO_A <- file.path(DATA_DIR, "01_plant_reference_database", "photos", "black_muntjac.png")   # black muntjac (camera trap, cropped v2)
+PHOTO_B <- file.path(DATA_DIR, "01_plant_reference_database", "photos", "reeves_muntjac.png")   # Reeves's muntjac (camera trap, cropped v2)
+SHP     <- file.path(DATA_DIR, "gis", "reserve_boundary.shp")   # reserve boundary (full shapefile w/ sidecars)
 BASE_FONT <- "Arial"
 
-f <- "gis/Sampling_sites_inventory.xlsx"
+# ---- sites (remove D73: P29/JLSK28 5 -> 4, total 66 -> 65) -------------------
+f <- file.path(DATA_DIR, "gis", "Sampling_sites_inventory.xlsx")
 d <- suppressMessages(read_excel(f, skip=3, col_names=FALSE))
 names(d) <- c("plot","site","zone","lat","lon","elev","veg","dom","nE","Esamp","nD","Dsamp","ntot")
 d <- d |> filter(grepl("^JLSK", site)) |>
   mutate(across(c(lat,lon,elev,ntot), as.numeric),
-         n = ntot,
+         has73 = grepl("D73", ifelse(is.na(Dsamp),"",Dsamp)),
+         n = ntot - as.integer(has73),
          zone2 = case_when(grepl("Original", zone) ~ "Original",
                            grepl("Expansion", zone) ~ "Expansion", TRUE ~ "Shared"))
+message(sprintf("plots=%d  total samples (noD73)=%d  (D73 was in %s)", nrow(d), sum(d$n), d$site[d$has73]))
 pts <- st_as_sf(d, coords=c("lon","lat"), crs=4326, remove=FALSE)
 
 # ---- reserve boundary (WGS84; 2 polygons = reserve areas) --------------------
@@ -41,7 +46,7 @@ rb <- st_bbox(reserve); pad <- 0.008
 xr <- c(rb[["xmin"]]-pad, rb[["xmax"]]+pad); yr <- c(rb[["ymin"]]-pad, rb[["ymax"]]+pad)
 
 # ---- DEM (SRTM) for reserve extent, masked to the reserve -------------------
-DEM_CACHE <- file.path(BASE, "jls_dem_z12.tif")
+DEM_CACHE <- file.path(DATA_DIR, "gis", "jls_dem_z12.tif")
 if (file.exists(DEM_CACHE)) {
   message("loading cached DEM…"); dem <- terra::rast(DEM_CACHE)
 } else {
@@ -58,7 +63,7 @@ if (file.exists(DEM_CACHE)) {
 }
 names(dem) <- "elev"
 dem <- terra::crop(dem, terra::ext(xr[1], xr[2], yr[1], yr[2]))
-dem <- terra::mask(dem, terra::vect(res_u))                       # elevation only inside the reserve
+dem <- terra::crop(dem, terra::ext(xr[1], xr[2], yr[1], yr[2]))   # full extent (no mask): show surrounding terrain
 hs <- terra::shade(terra::terrain(dem, "slope", unit="radians"),
                    terra::terrain(dem, "aspect", unit="radians"), angle=45, direction=315)
 names(hs) <- "hillshade"
@@ -79,8 +84,8 @@ p_map <- ggplot() +
   scale_size_area(max_size=7, breaks=c(1,2,5,12,20), name="Faecal\nsamples (n)") +
   annotation_scale(location="bl", width_hint=0.28, height=unit(1.2,"mm"),
                    text_cex=0.55, line_width=0.4, pad_y=unit(1.5,"mm")) +
-  annotation_north_arrow(location="tr", height=unit(6,"mm"), width=unit(5,"mm"),
-                         style=north_arrow_minimal(text_size=6)) +
+  annotation_north_arrow(location="tr", height=unit(8,"mm"), width=unit(8,"mm"),
+                         style=north_arrow_orienteering(text_size=6, line_width=0.5)) +
   coord_sf(xlim=xr, ylim=yr, expand=FALSE, crs=4326) +
   labs(x="Longitude (°E)", y="Latitude (°N)") +
   theme_bw(base_size=7, base_family=BASE_FONT) +
@@ -104,10 +109,10 @@ photo_panel <- function(path, tag, common, latin) {
     annotate("text", x=0.02, y=0.885, label=latin, hjust=0, vjust=1, fontface="italic", size=2.4, colour="white") +
     scale_x_continuous(limits=c(0,1), expand=c(0,0)) + scale_y_continuous(limits=c(0,1), expand=c(0,0)) +
     coord_fixed(ratio=ar, clip="off") + theme_void() +
-    theme(plot.margin=margin(1,1,1,1), plot.background=element_rect(fill=NA, colour="grey40", linewidth=0.3))
+    theme(plot.margin=margin(1,1,1,1), plot.background=element_blank())
 }
-pA <- photo_panel(PHOTO_A, "A", "Black muntjac",   "Muntiacus crinifrons")
-pB <- photo_panel(PHOTO_B, "B", "Reeves's muntjac","Muntiacus reevesi")
+pA <- photo_panel(PHOTO_A, "B", "Black muntjac",   "Muntiacus crinifrons")
+pB <- photo_panel(PHOTO_B, "C", "Reeves's muntjac","Muntiacus reevesi")
 
 # equal-height photo row: panel width ∝ 1/aspect (aspect = h/w), so both photos
 # render at the same height with widths matched to their (different) crops.
@@ -116,7 +121,11 @@ arB <- {i<-magick::image_info(magick::image_read(PHOTO_B)); i$height/i$width}
 photo_row <- (pA | pB) + plot_layout(widths=c(1/arA, 1/arB))
 
 # ---- COMPOSE (patchwork: reserve map over the two camera photos) ------------
-fig1 <- p_map / photo_row + plot_layout(heights=c(1.7, 1))
+# Landscape layout: map (A) on the left, two photos (B, C) stacked on the right
+photo_col <- (pB / pA) + plot_layout(heights=c(1, 1))   # C 在上（与 A 顶部对齐），B 在下
+fig1 <- (p_map | photo_col) + plot_layout(widths=c(2.2, 1)) +
+  plot_annotation(tag_levels="A") &
+  theme(plot.tag=element_text(size=12, face="bold"))
 
 # ---- EXPORT (E&E: vector PDF + SVG + 600 dpi TIFF) --------------------------
 save_map <- function(plot, name, width_mm, height_mm, dpi=600) {
@@ -128,5 +137,5 @@ save_map <- function(plot, name, width_mm, height_mm, dpi=600) {
   ok({ragg::agg_png(f(".png"), width=w, height=h, units="in", res=150); print(plot); dev.off()})  # QA preview
   message("  saved: ", name)
 }
-save_map(fig1, "Fig1_StudyMap", 166, 180)
+save_map(fig1, "Fig1_landscape", 171, 120)
 message("== DONE Figure 1 ==")

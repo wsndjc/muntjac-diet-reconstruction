@@ -43,10 +43,11 @@ Two independent reconstruction strategies were compared:
 │   └── 02_ASM_assembly_blast_tpm.sbatch
 │
 ├── 02_downstream_analysis/         # R/Python: matrices -> figures
-│   ├── 03_figures_main.R
-│   ├── 04_figure1_map.R
 │   ├── 05_verify_ASM_reproduce.R
-│   └── 06_build_TPM_matrix.py
+│   ├── 06_build_TPM_matrix.py
+│   ├── 07_fig2_jaccard.R            # Fig 2: cross-method Jaccard (A-F)
+│   ├── 08_fig3_heatmap.R            # Fig 3: family-detection heatmap (top-20)
+│   └── 09_fig1_map_landscape.R      # Fig 1: study-area map (landscape)
 │
 ├── 03_host_assignment/             # mitochondrial diagnostic-site voting
 │   ├── mito_hostID.sbatch
@@ -202,7 +203,10 @@ Rscript compute_downstream_stats.R     # beta diversity, IndVal, niche metrics
 | **§3.4** indicator taxa (IndVal) | `04_reproduction_scripts/compute_downstream_stats.R` |
 | **§3.4** niche breadth, overlap, specialisation | `04_reproduction_scripts/compute_downstream_stats.R` |
 | **ASM90/95/99 threshold choice** | `04_reproduction_scripts/asm_threshold_mrra.py` |
-| **Figures** | `02_downstream_analysis/03_figures_main.R` |
+| **Fig 1** study-area map | `02_downstream_analysis/09_fig1_map_landscape.R` |
+| **Fig 2** cross-method Jaccard | `02_downstream_analysis/07_fig2_jaccard.R` |
+| **Fig 3** family-detection heatmap | `02_downstream_analysis/08_fig3_heatmap.R` |
+| **Fig 4/5** composition & differentiation | `02_downstream_analysis/05_verify_ASM_reproduce.R` |
 
 ---
 
